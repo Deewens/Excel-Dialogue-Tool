@@ -63,6 +63,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
+              az storage blob delete-batch --account-key ${{ secrets.AZURE_STORAGE_ACCESS_KEY }} --account-name sadspoonstorage --auth-mode key -s '$web'
               az storage blob upload-batch --account-key ${{ secrets.AZURE_STORAGE_ACCESS_KEY }} --account-name sadspoonstorage --auth-mode key -d '$web' -s ./dist
 
       # Azure logout
