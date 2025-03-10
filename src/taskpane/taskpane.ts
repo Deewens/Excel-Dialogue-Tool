@@ -44,7 +44,7 @@ export async function importCSV() {
         "LocNamespace",
         "LocKey",
         "Conditions",
-        "NextLine",
+        "NextLineID",
         "Choices",
         "SpeakerData",
       ];
@@ -68,7 +68,7 @@ export async function importCSV() {
             FTextComponents[0],
             FTextComponents[1],
             row.Conditions,
-            row.NextLine,
+            row.NextLineID,
             row.Choices,
             row.SpeakerData,
           ],
@@ -118,8 +118,8 @@ export async function exportCSV() {
 
     const valuesAsJson = returnObjectFromValues<DialogueTable>(dialogueDataRange.values);
 
-    const formatedJson: UEDialogueDataTable[] = valuesAsJson.map((value) => {
-      let dialogueText = "";
+    const formatedJson: UEDialogueDataTable[] = valuesAsJson.map((value): UEDialogueDataTable => {
+      let dialogueText: string;
 
       value.Text = value.Text.replace(/"/g, `\\"`); // Replace the quote specific to the text, with an "escape" character that Unreal can understand
 
@@ -135,7 +135,7 @@ export async function exportCSV() {
         Speaker: value.Speaker,
         DialogueText: dialogueText,
         Conditions: value.Conditions,
-        NextLine: value.NextLine,
+        NextLineID: value.NextLineID,
         Choices: value.Choices,
         SpeakerData: value.SpeakerData,
       };
