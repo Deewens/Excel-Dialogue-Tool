@@ -60,7 +60,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         
       - name: Upload to blob storage
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           inlineScript: |
               az storage blob delete-batch --account-key ${{ secrets.AZURE_STORAGE_ACCESS_KEY }} --account-name sadspoonstorage --auth-mode key -s '$web'
