@@ -62,7 +62,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-              az storage blob upload-batch --account-name sadspoonstorage  --auth-mode key -d '$web' -s ./dist
+              az storage blob upload-batch --account-name sadspoonstorage  --auth-mode login -d '$web' -s ./dist
 
       # Azure logout
       - name: Logout from Azure
