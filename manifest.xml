@@ -51,6 +51,49 @@
                 </Control>
               </Group>
             </OfficeTab>
+
+            <CustomTab id="SadSpoon.CustomTab">
+              <Group id="SadSpoon.CustomTab.MainGroup">
+                <Label resid="MainGroup.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="SadSpoon.CustomTab.ImportButton">
+                  <Label resid="ImportButton.Label"/>
+                  <Supertip>
+                    <Title resid="ImportButton.Label"/>
+                    <Description resid="ImportButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>importCSV</FunctionName>
+                  </Action>
+                </Control>
+
+                <Control xsi:type="Button" id="SadSpoon.CustomTab.ExportButton">
+                  <Label resid="ExportButton.Label"/>
+                  <Supertip>
+                    <Title resid="ExportButton.Label"/>
+                    <Description resid="ExportButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>exportCSV</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+              <Label resid="CustomTab.Label" />
+            </CustomTab>
           </ExtensionPoint>
         </DesktopFormFactor>
       </Host>
@@ -68,9 +111,19 @@
       <bt:ShortStrings>
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane"/>
+
+        <!-- Custom Tab -->
+        <bt:String id="CustomTab.Label" DefaultValue="Dialogue Tool" />
+        <bt:String id="MainGroup.Label" DefaultValue="Import/Export" />
+        <bt:String id="ImportButton.Label" DefaultValue="Import CSV" />
+        <bt:String id="ExportButton.Label" DefaultValue="Export CSV" />
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Task Pane"/>
+
+        <!-- Custom Tab -->
+        <bt:String id="ImportButton.Tooltip" DefaultValue="Import a CSV from Unreal DataTable" />
+        <bt:String id="ExportButton.Tooltip" DefaultValue="Export a CSV to an Unreal DataTable" />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
