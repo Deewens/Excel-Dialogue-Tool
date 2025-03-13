@@ -5,13 +5,32 @@ import { showOpenFilePicker, showSaveFilePicker } from "native-file-system-adapt
 
 /* global Excel, Office */
 
+let _count = 0;
+
 Office.onReady((info) => {
   if (info.host === Office.HostType.Excel) {
     // document.getElementById("app-body").style.display = "block";
     document.getElementById("open-file-dialog").onclick = () => tryCatch(importCSV);
     document.getElementById("export-csv").onclick = () => tryCatch(exportCSV);
+
+    // document.getElementById("sideload-msg").style.display = "none";
+
+    console.log("ready");
+
+    updateCount(); // Update count on first open.
+    Office.addin.onVisibilityModeChanged((args) => {
+      if (args.visibilityMode === Office.VisibilityMode.taskpane) {
+        console.log("yes");
+        updateCount(); // Update count on subsequent opens.
+      }
+    });
   }
 });
+
+function updateCount() {
+  _count++;
+  document.getElementById("run").textContent = "Task pane opened " + _count + " times.";
+}
 
 export async function importCSV() {
   resetAndHideErrors();
@@ -236,5 +255,24 @@ export async function tryCatch(callback) {
     console.error(error);
   }
 }
+
+async function importCSVa(args) {
+  try {
+    await Excel.run(async (context) => {
+      const [fileHandle] = await showOpenFilePicker({
+        // @ts-ignore (Type definition is out-of-date)
+        types: [{ description: "CSV file", accept: { "text/csv": [".csv"] } }],
+        excludeAcceptAllOption: true,
+      });
+      await context.sync();
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  args.completed();
+}
+
+Office.actions.associate("importCSV", importCSVa);
 
 let globalErrors: ErrorsHandler = { addinErrors: [], parseErrors: [] };
