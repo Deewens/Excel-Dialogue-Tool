@@ -4,8 +4,8 @@ const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const urlDev = "https://localhost:3000/";
-const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
+const urlDev = "https://localhost:3000";
+const urlProd = "https://sadspoonstorage.z6.web.core.windows.net"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -20,6 +20,7 @@ module.exports = async (env, options) => {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
       taskpane: ["./src/taskpane/taskpane.ts", "./src/taskpane/taskpane.html"],
       commands: "./src/commands/commands.ts",
+      importCsvDialog: "./src/dialogs/import-csv-dialog.ts",
     },
     output: {
       clean: true,
@@ -79,6 +80,11 @@ module.exports = async (env, options) => {
         filename: "commands.html",
         template: "./src/commands/commands.html",
         chunks: ["polyfill", "commands"],
+      }),
+      new HtmlWebpackPlugin({
+        filename: "import-csv-dialog.html",
+        template: "./src/dialogs/import-csv-dialog.html",
+        chunks: ["polyfill", "importCsvDialog"],
       }),
     ],
     devServer: {

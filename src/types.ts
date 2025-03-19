@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { ErrorsHandler } from "./errors-handler";
 
 export interface UEDialogueDataTable {
   "---": string;
@@ -22,7 +23,6 @@ export interface DialogueTable {
   SpeakerData: string;
 }
 
-export interface ErrorsHandler {
-  addinErrors: string[];
-  parseErrors: Papa.ParseError[];
+export interface ImportDialogMessage<T> {
+  parseResult: Papa.ParseResult<T>;
 }

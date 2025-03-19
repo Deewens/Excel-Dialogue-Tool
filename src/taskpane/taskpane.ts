@@ -1,7 +1,8 @@
 import { extractFTextComponents, returnObjectFromValues, parseCSV } from "../utils";
-import { DialogueTable, ErrorsHandler, UEDialogueDataTable } from "../types";
+import { DialogueTable, UEDialogueDataTable } from "../types";
 import Papa, { ParseError, ParseMeta } from "papaparse";
 import { showOpenFilePicker, showSaveFilePicker } from "native-file-system-adapter";
+import { ErrorsHandler } from "../errors-handler";
 
 /* global Excel, Office */
 
@@ -25,7 +26,7 @@ export async function importCSV() {
 
     const file = await fileHandle.getFile();
     parseCSV(file, async function (data: UEDialogueDataTable[], meta: ParseMeta, error: ParseError[]) {
-      appendParseError(error);
+      globalErrors.addParseError(error);
 
       let editorSheet = context.workbook.worksheets.getItemOrNullObject("Dialogue Editor");
 
@@ -96,7 +97,7 @@ export async function exportCSV() {
     await context.sync();
 
     if (editorSheet.isNullObject) {
-      appendAddinError([`Nothing to export`]);
+      globalErrors.addAddinError([`Nothing to export`]);
       console.error("Nothing to export");
       displayErrorsIfExists();
       return;
@@ -107,7 +108,9 @@ export async function exportCSV() {
     await context.sync();
 
     if (dialogueTable.isNullObject) {
-      appendAddinError([`The table does not exist or has been renamed. The table should be named "DialoguesTable"`]);
+      globalErrors.addAddinError([
+        `The table does not exist or has been renamed. The table should be named "DialoguesTable"`,
+      ]);
       console.error(`The table does not exist or has been renamed. The table should be named "DialoguesTable"`);
       displayErrorsIfExists();
       return;
@@ -168,26 +171,6 @@ export async function exportCSV() {
   });
 }
 
-function appendAddinError(errors: string[]) {
-  const addinErrorsCopy = globalErrors.addinErrors;
-  addinErrorsCopy.push(...errors);
-
-  globalErrors = {
-    ...globalErrors,
-    addinErrors: addinErrorsCopy,
-  };
-}
-
-function appendParseError(errors: Papa.ParseError[]) {
-  const parseErrorsCopy = globalErrors.parseErrors;
-  parseErrorsCopy.push(...errors);
-
-  globalErrors = {
-    ...globalErrors,
-    parseErrors: parseErrorsCopy,
-  };
-}
-
 function displayErrorsIfExists() {
   const errorAlert = document.getElementById("errorAlert");
 
@@ -222,19 +205,19 @@ function resetAndHideErrors() {
 
   errorAlert.classList.replace("d-block", "d-none");
   errorAlert.innerHTML = "";
-  globalErrors.parseErrors = [];
-  globalErrors.addinErrors = [];
+
+  globalErrors.clear();
 }
 
 export async function tryCatch(callback) {
   try {
     await callback();
   } catch (error) {
-    appendAddinError([error]);
+    globalErrors.addAddinError([error]);
     displayErrorsIfExists();
 
     console.error(error);
   }
 }
 
-let globalErrors: ErrorsHandler = { addinErrors: [], parseErrors: [] };
+let globalErrors: ErrorsHandler;

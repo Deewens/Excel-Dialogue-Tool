@@ -6,6 +6,8 @@
 /* global Office, console, Excel, document */
 
 import context = Office.context;
+import { ImportDialogMessage, UEDialogueDataTable } from "../types";
+import { ParseResult } from "papaparse";
 
 Office.onReady(() => {
   // If needed, Office.js is ready to be called.
@@ -29,6 +31,47 @@ function action(event: Office.AddinCommands.Event) {
   // Be sure to indicate when the add-in command function is complete.
   event.completed();
 }
+
+let dialog: Office.Dialog = null;
+
+async function onImportCSVClicked(event) {
+  try {
+    await Excel.run(async (context) => {
+      Office.context.ui.displayDialogAsync(
+        "https://localhost:3000/import-csv-dialog.html",
+        {
+          height: 25,
+          width: 35,
+          displayInIframe: true,
+        },
+        (asyncResult) => {
+          dialog = asyncResult.value;
+          dialog.addEventHandler(Office.EventType.DialogMessageReceived, processMessage);
+        }
+      );
+
+      event.completed();
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  function processMessage(arg) {
+    const messageFromDialog = JSON.parse(arg.message) as ParseResult<UEDialogueDataTable>;
+
+    if (messageFromDialog.errors.length === 0) {
+      dialog.close();
+
+      createExcelTable(messageFromDialog.data);
+    }
+  }
+}
+
+function createExcelTable(data: UEDialogueDataTable[]) {
+  // TODO
+}
+
+Office.actions.associate("importCSV", onImportCSVClicked);
 
 /*function importCSV(event: Office.AddinCommands.Event) {
   Office.context.ui.displayDialogAsync(
