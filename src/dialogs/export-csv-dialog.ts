@@ -23,6 +23,7 @@ let dataReceivedFromParent = false;
 let dialogueData: DialogueTable[] = [];
 
 function onMessageFromParent(arg) {
+  console.log("MESSSAGE FROM PARENT");
   try {
     dialogueData = JSON.parse(arg.message);
   } catch (e) {
