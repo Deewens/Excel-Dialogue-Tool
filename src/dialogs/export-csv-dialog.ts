@@ -5,7 +5,7 @@ import { showSaveFilePicker } from "native-file-system-adapter";
 
 /* global Office, Excel */
 
-Office.onReady((info) => {
+Office.initialize(() => {
   Office.context.ui.addHandlerAsync(
     Office.EventType.DialogParentMessageReceived,
     onMessageFromParent,
@@ -13,6 +13,9 @@ Office.onReady((info) => {
   );
 
   Office.context.ui.messageParent("IAmReady");
+});
+
+Office.onReady((info) => {
   document.getElementById("exportCsvButton").onclick = () => tryCatch(exportCSV);
 });
 
