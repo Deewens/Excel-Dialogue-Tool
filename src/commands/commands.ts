@@ -50,6 +50,7 @@ async function onImportCSVClicked(event) {
         {
           height: 25,
           width: 35,
+          displayInIframe: true,
         },
         (asyncResult) => {
           importDialog = asyncResult.value;
@@ -86,6 +87,7 @@ async function onExportCSVClicked(event) {
       {
         height: 45,
         width: 45,
+        displayInIframe: true,
       },
       (asyncResult) => {
         exportDialog = asyncResult.value;
