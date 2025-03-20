@@ -79,32 +79,34 @@ Office.actions.associate("importCSV", onImportCSVClicked);
 
 async function onExportCSVClicked(event) {
   try {
-    const dialogueDataJson = await getCSVDataToExport();
+    await Excel.run(async (context) => {
+      const dialogueDataJson = await getCSVDataToExport();
 
-    Office.context.ui.displayDialogAsync(
-      // "https://localhost:3000/export-csv-dialog.html",
-      "https://sadspoonstorage.z6.web.core.windows.net/export-csv-dialog.html",
-      {
-        height: 45,
-        width: 45,
-        displayInIframe: true,
-      },
-      (asyncResult) => {
-        exportDialog = asyncResult.value;
+      Office.context.ui.displayDialogAsync(
+        // "https://localhost:3000/export-csv-dialog.html",
+        "https://sadspoonstorage.z6.web.core.windows.net/export-csv-dialog.html",
+        {
+          height: 45,
+          width: 45,
+          displayInIframe: true,
+        },
+        (asyncResult) => {
+          exportDialog = asyncResult.value;
 
-        exportDialog.messageChild(JSON.stringify(dialogueDataJson), { targetOrigin: "https://localhost:3000" });
+          exportDialog.messageChild(JSON.stringify(dialogueDataJson), { targetOrigin: "https://localhost:3000" });
 
-        // wait for the dialog to tell us its ready to process messages because microsoft is shit. Once it is, we can sent messages to it
-        exportDialog.addEventHandler(Office.EventType.DialogMessageReceived, (arg: any) => {
-          if (arg.message === "IAmReady") {
-            console.log(dialogueDataJson);
-            // exportDialog.messageChild(JSON.stringify(dialogueDataJson), { targetOrigin: "https://localhost:3000" });
-          }
-        });
-      }
-    );
+          // wait for the dialog to tell us its ready to process messages because microsoft is shit. Once it is, we can sent messages to it
+          exportDialog.addEventHandler(Office.EventType.DialogMessageReceived, (arg: any) => {
+            if (arg.message === "IAmReady") {
+              console.log(dialogueDataJson);
+              // exportDialog.messageChild(JSON.stringify(dialogueDataJson), { targetOrigin: "https://localhost:3000" });
+            }
+          });
+        }
+      );
 
-    event.completed();
+      event.completed();
+    });
   } catch (error) {
     console.error(error);
   }
