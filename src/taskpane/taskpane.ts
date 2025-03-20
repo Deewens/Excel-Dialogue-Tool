@@ -14,6 +14,8 @@ Office.onReady((info) => {
   }
 });
 
+let globalErrors: ErrorsHandler = new ErrorsHandler();
+
 export async function importCSV() {
   resetAndHideErrors();
 
@@ -214,5 +216,3 @@ export async function tryCatch(callback) {
     console.error(error);
   }
 }
-
-let globalErrors: ErrorsHandler;

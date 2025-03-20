@@ -1,15 +1,13 @@
-/* global Office, Excel */
-
 import { DialogueTable, UEDialogueDataTable } from "../types";
 import { ErrorsHandler } from "../errors-handler";
 import Papa from "papaparse";
 import { showSaveFilePicker } from "native-file-system-adapter";
 
-Office.initialize = async () => {
-  Office.context.ui.messageParent("IAmReady");
-};
+/* global Office, Excel */
 
 Office.onReady((info) => {
+  Office.context.ui.messageParent("IAmReady");
+
   Office.context.ui.addHandlerAsync(
     Office.EventType.DialogParentMessageReceived,
     onMessageFromParent,
@@ -110,7 +108,6 @@ async function exportCSV() {
   });
 
   csv += "\r\n";
-  (document.getElementById("csvTextArea") as HTMLTextAreaElement).textContent = csv;
 
   const fileHandle = await showSaveFilePicker({
     suggestedName: "test.csv",
