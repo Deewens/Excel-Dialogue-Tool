@@ -1,9 +1,8 @@
-/* global Office, Excel */
-
-import { extractFTextComponents, parseCSV } from "../utils";
-import { ImportDialogMessage, UEDialogueDataTable } from "../types";
-import Papa, { ParseError, ParseMeta } from "papaparse";
+import { UEDialogueDataTable } from "../types";
+import Papa from "papaparse";
 import { ErrorsHandler } from "../errors-handler";
+
+/* global Office, Excel */
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Excel) {
