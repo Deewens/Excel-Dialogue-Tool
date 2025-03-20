@@ -6,16 +6,14 @@ import { showSaveFilePicker } from "native-file-system-adapter";
 /* global Office, Excel */
 
 Office.onReady((info) => {
-  if (info.host === Office.HostType.Excel) {
-    Office.context.ui.messageParent("IAmReady");
+  Office.context.ui.addHandlerAsync(
+    Office.EventType.DialogParentMessageReceived,
+    onMessageFromParent,
+    onRegisterMessageComplete
+  );
 
-    Office.context.ui.addHandlerAsync(
-      Office.EventType.DialogParentMessageReceived,
-      onMessageFromParent,
-      onRegisterMessageComplete
-    );
-    document.getElementById("exportCsvButton").onclick = () => tryCatch(exportCSV);
-  }
+  Office.context.ui.messageParent("IAmReady");
+  document.getElementById("exportCsvButton").onclick = () => tryCatch(exportCSV);
 });
 
 // TODO: remove the ugly code duplication but i'm lazy, it's late, and I already spent too much time on this, for now it worksm
