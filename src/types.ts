@@ -1,13 +1,12 @@
 import Papa from "papaparse";
-import { ErrorsHandler } from "./errors-handler";
 
 export interface UEDialogueDataTable {
   "---": string;
   Speaker: string;
   DialogueText: string;
-  Conditions: string;
   NextLineID: string;
   Choices: string;
+  Conditions: string;
   SpeakerData: string;
 }
 
@@ -15,11 +14,11 @@ export interface DialogueTable {
   ID: string;
   Speaker: string;
   Text: string;
-  LocNamespace: string;
-  LocKey: string;
-  Conditions: string;
   NextLineID: string;
   Choices: string;
+  Conditions: string;
+  LocNamespace: string;
+  LocKey: string;
   SpeakerData: string;
 }
 

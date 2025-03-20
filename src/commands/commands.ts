@@ -5,9 +5,12 @@
 
 /* global Office, console, Excel, document */
 
-import context = Office.context;
-import { ImportDialogMessage, UEDialogueDataTable } from "../types";
+import Worksheet = Excel.Worksheet;
+import RequestContext = Excel.RequestContext;
+import { DialogueTable, UEDialogueDataTable } from "../types";
 import { ParseResult } from "papaparse";
+import { config } from "../config";
+import { extractFTextComponents, returnObjectFromValues } from "../utils";
 
 Office.onReady(() => {
   // If needed, Office.js is ready to be called.
@@ -32,7 +35,11 @@ function action(event: Office.AddinCommands.Event) {
   event.completed();
 }
 
-let dialog: Office.Dialog = null;
+// Register the function with Office.
+Office.actions.associate("action", action);
+
+let importDialog: Office.Dialog = null;
+let exportDialog: Office.Dialog = null;
 
 async function onImportCSVClicked(event) {
   try {
@@ -45,8 +52,8 @@ async function onImportCSVClicked(event) {
           displayInIframe: true,
         },
         (asyncResult) => {
-          dialog = asyncResult.value;
-          dialog.addEventHandler(Office.EventType.DialogMessageReceived, processMessage);
+          importDialog = asyncResult.value;
+          importDialog.addEventHandler(Office.EventType.DialogMessageReceived, processMessage);
         }
       );
 
@@ -56,134 +63,165 @@ async function onImportCSVClicked(event) {
     console.error(error);
   }
 
-  function processMessage(arg) {
+  async function processMessage(arg) {
     const messageFromDialog = JSON.parse(arg.message) as ParseResult<UEDialogueDataTable>;
 
     if (messageFromDialog.errors.length === 0) {
-      dialog.close();
+      importDialog.close();
 
-      createExcelTable(messageFromDialog.data);
+      await createOrUpdateExcel(messageFromDialog.data);
     }
   }
-}
-
-function createExcelTable(data: UEDialogueDataTable[]) {
-  // TODO
 }
 
 Office.actions.associate("importCSV", onImportCSVClicked);
 
-/*function importCSV(event: Office.AddinCommands.Event) {
-  Office.context.ui.displayDialogAsync(
-    "https://localhost:3000/import-csv-dialog.html",
-    { height: 100, width: 100, displayInIframe: true },
-    function (result) {
-      dialog = result.value;
-      dialog.addEventHandler(Office.EventType.DialogMessageReceived, (arg) => tryCatch(processImportCsvMessage(arg)));
-    }
-  );
-
-  event.completed();
-}
-
-async function processImportCsvMessage(arg) {
-  await Excel.run(async (context) => {
-    let editorSheet = context.workbook.worksheets.getItemOrNullObject("Dialogue Editor");
-
-    await context.sync();
-
-    if (editorSheet.isNullObject) {
-      editorSheet = context.workbook.worksheets.add("Dialogue Editor");
-    } else {
-      editorSheet.getUsedRange().clear();
-    }
-
-    const headers = [
-      "ID",
-      "Speaker",
-      "Text",
-      "LocNamespace",
-      "LocKey",
-      "Conditions",
-      "NextLine",
-      "Choices",
-      "SpeakerData",
-    ];
-
-    const tableHeaderRange = editorSheet.getRangeByIndexes(0, 0, 1, headers.length);
-
-    const dialoguesTable = editorSheet.tables.add(tableHeaderRange, true);
-    dialoguesTable.name = "DialogueTable";
-    dialoguesTable.getHeaderRowRange().values = [headers];
-
-    const data = JSON.parse(arg.message) as UEDialogueDataTable[];
-
-    data.forEach((row) => {
-      const FTextComponents = extractFTextComponents(row.DialogueText);
-
-      if (FTextComponents.length > 0) FTextComponents[2] = FTextComponents[2].replace(/\\"/g, '"');
-
-      const newData = [
-        [
-          row["---"],
-          row.Speaker,
-          FTextComponents[2],
-          FTextComponents[0],
-          FTextComponents[1],
-          row.Conditions,
-          row.NextLine,
-          row.Choices,
-          row.SpeakerData,
-        ],
-      ];
-
-      dialoguesTable.rows.add(null, newData);
-    });
-
-    editorSheet.getUsedRange().format.autofitColumns();
-    editorSheet.getUsedRange().format.autofitRows();
-
-    editorSheet.activate();
-
-    await context.sync();
-
-    dialog.close();
-  });
-}
-
-function extractFTextComponents(FTextString: string) {
-  // Reset `lastIndex` if this regex is defined globally
-  REGEX_FTEXT_EXTRACTION.lastIndex = 0;
-
-  let regexMatches: RegExpExecArray;
-
-  const resultArray: string[] = [];
-
-  while ((regexMatches = REGEX_FTEXT_EXTRACTION.exec(FTextString)) !== null) {
-    // This is necessary to avoid infinite loops with zero-width matches
-    if (regexMatches.index === REGEX_FTEXT_EXTRACTION.lastIndex) {
-      REGEX_FTEXT_EXTRACTION.lastIndex++;
-    }
-
-    regexMatches.forEach((match, groupIndex) => {
-      if (groupIndex == 1) {
-        resultArray.push(match);
-      }
-    });
-  }
-
-  return resultArray;
-}
-
-async function tryCatch(callback) {
+async function onExportCSVClicked(event) {
   try {
-    await callback();
+    const dialogueDataJson = await getCSVDataToExport();
+
+    Office.context.ui.displayDialogAsync(
+      "https://localhost:3000/export-csv-dialog.html",
+      {
+        height: 45,
+        width: 45,
+        displayInIframe: true,
+      },
+      (asyncResult) => {
+        exportDialog = asyncResult.value;
+
+        // wait for the dialog to tell us its ready to process messages because microsoft is shit. Once it is, we can sent messages to it
+        exportDialog.addEventHandler(Office.EventType.DialogMessageReceived, (arg: any) => {
+          if (arg.message === "IAmReady") {
+            console.log("READY");
+            console.log(dialogueDataJson);
+            exportDialog.messageChild(JSON.stringify(dialogueDataJson), { targetOrigin: "https://localhost:3000" });
+          }
+        });
+      }
+    );
+
+    event.completed();
   } catch (error) {
     console.error(error);
   }
 }
 
-let dialog: Office.Dialog = null;*/
+Office.actions.associate("exportCSV", onExportCSVClicked);
 
-// Register the function with Office.
-Office.actions.associate("action", action);
+async function getCSVDataToExport() {
+  try {
+    return await Excel.run(async (context) => {
+      const editorSheet = context.workbook.worksheets.getItemOrNullObject("Dialogue Editor");
+
+      await context.sync();
+
+      if (editorSheet.isNullObject) return;
+
+      const dialogueTable = editorSheet.tables.getItemOrNullObject("DialogueTable");
+
+      await context.sync();
+
+      if (dialogueTable.isNullObject) return;
+
+      const dialogueDataRange = dialogueTable.getRange().load({ values: true });
+      await context.sync();
+
+      return returnObjectFromValues<DialogueTable>(dialogueDataRange.values);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function selectOrCreateWorksheet(context: RequestContext, worksheetName: string) {
+  let sheet = context.workbook.worksheets.getItemOrNullObject(worksheetName);
+
+  await context.sync();
+
+  if (sheet.isNullObject) {
+    sheet = context.workbook.worksheets.add(worksheetName);
+  }
+
+  return sheet;
+}
+
+type CreateTableMeta = {
+  address: Excel.Range;
+  hasHeaders: boolean;
+  headerRowValues: string[][];
+};
+
+function createTable(worksheet: Worksheet, tableName: string, meta: CreateTableMeta) {
+  const dialoguesTable = worksheet.tables.add(meta.address, meta.hasHeaders);
+  dialoguesTable.name = tableName;
+  dialoguesTable.getHeaderRowRange().values = meta.headerRowValues;
+
+  return dialoguesTable;
+}
+
+async function createOrUpdateExcel(data: UEDialogueDataTable[]) {
+  try {
+    await Excel.run(async (context) => {
+      const editorSheet = await selectOrCreateWorksheet(context, config.worksheetName);
+
+      await context.sync();
+
+      let dialogueTable = editorSheet.tables.getItemOrNullObject(config.tableName);
+
+      await context.sync();
+
+      if (dialogueTable.isNullObject) {
+        const tableHeaderRange = editorSheet.getRangeByIndexes(0, 0, 1, config.tableHeaderRows.length);
+        tableHeaderRange.setRowProperties([{}]);
+        dialogueTable = createTable(editorSheet, config.tableName, {
+          address: tableHeaderRange,
+          hasHeaders: true,
+          headerRowValues: [config.tableHeaderRows],
+        });
+      } else {
+        const rowsCount = dialogueTable.rows.getCount();
+
+        await context.sync();
+
+        // eslint-disable-next-line office-addins/load-object-before-read
+        dialogueTable.rows.deleteRowsAt(0, rowsCount.value - 1);
+      }
+
+      data.forEach((row) => {
+        const FTextComponents = extractFTextComponents(row.DialogueText);
+
+        if (FTextComponents.length > 0) FTextComponents[2] = FTextComponents[2].replace(/\\"/g, '"');
+
+        const text = FTextComponents[2];
+        const locNamespace = FTextComponents[0];
+        const locKey = FTextComponents[1];
+
+        const newData = [
+          [
+            row["---"],
+            row.Speaker,
+            text,
+            row.NextLineID,
+            row.Choices,
+            row.Conditions,
+            locNamespace,
+            locKey,
+            row.SpeakerData,
+          ],
+        ];
+
+        dialogueTable.rows.add(null, newData);
+      });
+
+      editorSheet.getUsedRange().format.autofitColumns();
+      editorSheet.getUsedRange().format.autofitRows();
+
+      editorSheet.activate();
+
+      await context.sync();
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}

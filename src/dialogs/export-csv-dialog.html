@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head lang="en">
-  <title>Import Dialog</title>
+  <title>Export Dialog</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -9,22 +9,24 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
   <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <script type="text/javascript" src="import-csv-dialog.ts"></script>
+  <script type="text/javascript" src="export-csv-dialog.ts"></script>
 
 </head>
 <body>
 
 <main class="container vh-100 d-flex flex-column justify-content-center">
   <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
-
-  <div class="input-group mb-3">
-    <input type="file" class="form-control" id="fileInput" accept="text/csv">
-    <label class="input-group-text" for="fileInput">Upload CSV</label>
-  </div>
-  <div class="d-flex justify-content-center">
-    <button id="importButton" type="button" class="btn btn-outline-primary" disabled>Import to Excel
-    </button>
-  </div>
+  <section>
+    <div>
+      <div class="d-flex justify-content-center">
+        <button id="exportCsvButton" class="d-inline-block btn btn-outline-primary btn-md" type="button" disabled>Export CSV</button>
+      </div>
+      <div>
+        <label for="csvTextArea" class="form-label">CSV</label>
+        <textarea class="form-control" id="csvTextArea" rows="10"></textarea>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -21,6 +21,7 @@ module.exports = async (env, options) => {
       taskpane: ["./src/taskpane/taskpane.ts", "./src/taskpane/taskpane.html"],
       commands: "./src/commands/commands.ts",
       importCsvDialog: "./src/dialogs/import-csv-dialog.ts",
+      exportCsvDialog: "./src/dialogs/export-csv-dialog.ts",
     },
     output: {
       clean: true,
@@ -85,6 +86,11 @@ module.exports = async (env, options) => {
         filename: "import-csv-dialog.html",
         template: "./src/dialogs/import-csv-dialog.html",
         chunks: ["polyfill", "importCsvDialog"],
+      }),
+      new HtmlWebpackPlugin({
+        filename: "export-csv-dialog.html",
+        template: "./src/dialogs/export-csv-dialog.html",
+        chunks: ["polyfill", "exportCsvDialog"],
       }),
     ],
     devServer: {

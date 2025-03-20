@@ -126,7 +126,7 @@ export async function exportCSV() {
 
       value.Text = value.Text.replace(/"/g, `\\"`); // Replace the quote specific to the text, with an "escape" character that Unreal can understand
 
-      // We need to properly reformat the localisation data. If there is not localisation data, then we just leave it empty and Unreal will generate one for us during import
+      // We need to properly reformat the localisation data. If there is no localisation data, then we just leave it empty and Unreal will generate one for us during import
       if (value.LocNamespace && value.LocKey) {
         dialogueText = `NSLOCTEXT("${value.LocNamespace}", "${value.LocKey}", "${value.Text}")`;
       } else {
@@ -163,11 +163,6 @@ export async function exportCSV() {
     const blob = new Blob([csv], { type: "text/csv" });
     await writer.write(blob);
     await writer.close();
-
-    /*    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "test.csv";
-    a.click();*/
   });
 }
 
