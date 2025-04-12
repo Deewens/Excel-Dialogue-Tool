@@ -45,8 +45,8 @@ async function onImportCSVClicked(event) {
   try {
     await Excel.run(async (context) => {
       Office.context.ui.displayDialogAsync(
-        // "https://localhost:3000/import-csv-dialog.html",
-        "https://sadspoonstorage.z6.web.core.windows.net/import-csv-dialog.html",
+        "https://localhost:3000/import-csv-dialog.html",
+        //"https://sadspoonstorage.z6.web.core.windows.net/import-csv-dialog.html",
         {
           height: 25,
           width: 35,
@@ -83,8 +83,8 @@ async function onExportCSVClicked(event) {
       const dialogueDataJson = await getCSVDataToExport();
 
       Office.context.ui.displayDialogAsync(
-        // "https://localhost:3000/export-csv-dialog.html",
-        "https://sadspoonstorage.z6.web.core.windows.net/export-csv-dialog.html",
+        "https://localhost:3000/export-csv-dialog.html",
+        //"https://sadspoonstorage.z6.web.core.windows.net/export-csv-dialog.html",
         {
           height: 45,
           width: 45,
@@ -209,6 +209,8 @@ async function createOrUpdateExcel(data: UEDialogueDataTable[]) {
             text,
             row.NextLineID,
             row.Choices,
+            row.PreEvent,
+            row.PostEvent,
             row.Conditions,
             locNamespace,
             locKey,

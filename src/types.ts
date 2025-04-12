@@ -6,6 +6,8 @@ export interface UEDialogueDataTable {
   DialogueText: string;
   NextLineID: string;
   Choices: string;
+  PreEvent: string;
+  PostEvent: string;
   Conditions: string;
   SpeakerData: string;
 }
@@ -16,6 +18,8 @@ export interface DialogueTable {
   Text: string;
   NextLineID: string;
   Choices: string;
+  PreEvent: string;
+  PostEvent: string;
   Conditions: string;
   LocNamespace: string;
   LocKey: string;

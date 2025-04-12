@@ -55,12 +55,14 @@ function onMessageFromParent(arg) {
       Conditions: value.Conditions,
       NextLineID: value.NextLineID,
       Choices: value.Choices,
+      PreEvent: value.PreEvent,
+      PostEvent: value.PostEvent,
       SpeakerData: value.SpeakerData,
     };
   });
 
   let csv = Papa.unparse(formatedJson, {
-    quotes: [false, true, true, true, true, true, true],
+    quotes: [false, true, true, true, true, true, true, true, true],
     skipEmptyLines: "greedy",
   });
 
@@ -99,19 +101,20 @@ async function exportCSV() {
       Conditions: value.Conditions,
       NextLineID: value.NextLineID,
       Choices: value.Choices,
+      PreEvent: value.PreEvent,
+      PostEvent: value.PostEvent,
       SpeakerData: value.SpeakerData,
     };
   });
 
   let csv = Papa.unparse(formatedJson, {
-    quotes: [false, true, true, true, true, true, true],
+    quotes: [false, true, true, true, true, true, true, true, true],
     skipEmptyLines: "greedy",
   });
 
   csv += "\r\n";
 
   const fileHandle = await showSaveFilePicker({
-    suggestedName: "test.csv",
     types: [{ accept: { "text/csv": [".csv"] } }],
     excludeAcceptAllOption: true,
   });

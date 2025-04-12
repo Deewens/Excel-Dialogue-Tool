@@ -13,6 +13,8 @@ export const config: Config = {
     "Text",
     "NextLineID",
     "Choices",
+    "PreEvent",
+    "PostEvent",
     "Conditions",
     "LocNamespace",
     "LocKey",

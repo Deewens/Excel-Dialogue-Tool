@@ -49,6 +49,8 @@ export async function importCSV() {
         "Conditions",
         "NextLineID",
         "Choices",
+        "PreEvent",
+        "PostEvent",
         "SpeakerData",
       ];
 
@@ -73,6 +75,8 @@ export async function importCSV() {
             row.Conditions,
             row.NextLineID,
             row.Choices,
+            row.PreEvent,
+            row.PostEvent,
             row.SpeakerData,
           ],
         ];
@@ -142,6 +146,8 @@ export async function exportCSV() {
         Conditions: value.Conditions,
         NextLineID: value.NextLineID,
         Choices: value.Choices,
+        PreEvent: value.PreEvent,
+        PostEvent: value.PostEvent,
         SpeakerData: value.SpeakerData,
       };
     });
